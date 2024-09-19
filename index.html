@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: black; 
+            color: white; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #1a1a1a; 
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1); 
+            text-align: center;
+        }
+
+        h1 {
+            color: gold; 
+            margin-bottom: 20px;
+        }
+
+        form {
+            margin-bottom: 20px;
+            color: white; 
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #333; 
+            color: white; 
+        }
+
+        input[type="text"]::placeholder {
+            color: #bbb; 
+        }
+
+        button {
+            background-color: gold; 
+            color: black; 
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: white; 
+            color: gold; 
+        }
+
+        .result, .error {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        .error {
+            color: red; 
+        }
+    </style>
+    <!-- Load PyScript -->
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Grade Calculator</h1>
+        <form id="gradeForm">
+            <label for="prelim">Enter Prelim Grade (0-100):</label>
+            <input type="text" id="prelim" name="prelim_grade" required>
+            <button type="button" id="calculateButton">Calculate</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <py-script>
+def calculateGrades(event):
+    # Get the Prelim grade from the form
+    prelim_grade_str = Element('prelim').element.value
+
+    try:
+        # Validate input as a numerical value
+        prelim_grade = float(prelim_grade_str)
+        if prelim_grade < 0 or prelim_grade > 100:
+            raise ValueError("Grade must be between 0 and 100.")
+        
+        # Calculate Prelim contribution (20%)
+        prelim_contribution = 0.20 * prelim_grade
+        remaining_contribution = 0.80
+
+        # Check if the student has a chance to pass
+        if prelim_contribution + remaining_contribution * 100 < 75:
+            result_text = "Sorry, it's mathematically impossible to pass with your current Prelim grade."
+        else:
+            # Calculate required Midterm and Final grades to pass
+            remaining_for_midterm_final = 75 - prelim_contribution
+            required_midterm = remaining_for_midterm_final / remaining_contribution * 0.30
+            required_final = remaining_for_midterm_final / remaining_contribution * 0.50
+
+            # Dean's Lister qualification (Grade > 90)
+            remaining_for_deans_lister = 90 - prelim_contribution
+            required_midterm_lister = remaining_for_deans_lister / remaining_contribution * 0.30
+            required_final_lister = remaining_for_deans_lister / remaining_contribution * 0.50
+            
+            result_text = f"""
+            Prelim Grade: {prelim_grade:.2f}<br>
+            To pass, you need at least {required_midterm:.2f} in Midterm and {required_final:.2f} in Finals.<br><br>
+            If you want to become a Dean's Lister, you need at least {required_midterm_lister:.2f} in Midterm and {required_final_lister:.2f} in Finals.
+            """
+        
+        # Display the result in the web interface
+        Element('result').element.innerHTML = result_text
+
+    except ValueError as e:
+        # Handle invalid input errors
+        Element('result').element.innerHTML = f'<span style="color: red;">{str(e)}</span>'
+
+# Add event listener to the button
+Element('calculateButton').element.onclick = calculateGrades
+    </py-script>
+</body>
+</html>
