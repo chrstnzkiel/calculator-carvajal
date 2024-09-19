@@ -88,64 +88,82 @@
     </div>
 
     <py-script>
-      
-
-          # Function to calculate grades based on input and display the results
+        # This function is triggered when the form is submitted.
+        # It calculates the required Midterm and Final grades based on the Prelim grade
+        # to determine if a student can pass or qualify for the Dean's Lister.
         def calculate_grades(event):
+            # Prevents the form from submitting normally and reloading the page
             event.preventDefault()
+            
+            # Retrieves the user's input (Prelim grade) from the form
             prelim_grade_str = Element('prelim').element.value
 
             try:
+                # Converts the input to a floating-point number for calculations
                 prelim_grade = float(prelim_grade_str)
+                
+                # Validates if the grade is within the acceptable range (1-100)
                 if prelim_grade < 1 or prelim_grade > 100:
                     raise ValueError("Grade must be between 1 and 100.")
                 
+                # Calculates the contribution of the Prelim grade to the final overall grade
                 prelim_contribution = 0.20 * prelim_grade
+                
+                # Sets the maximum combined contribution of Midterm and Final grades (80%)
                 max_midterm_final = 0.30 + 0.50
 
+                # Initialize an empty result message
                 result = ""
 
-                # Check if it's impossible to pass the subject
+                # Checks if it's impossible for the student to pass the subject
                 if prelim_contribution + max_midterm_final * 100 < 75:
                     result = "Sorry to say this, but it is impossible for you to pass the subject with your current Prelim grade."
                 else:
+                    # Calculates the required Midterm and Final grades to pass with a minimum grade of 75
                     remaining_for_midterm_final = 75 - prelim_contribution
                     required_midterm = remaining_for_midterm_final / max_midterm_final
                     required_final = required_midterm
 
+                    # Builds the result message for passing the subject
                     result += f"To pass the subject with an overall grade of 75, you need at least:<br>"
                     result += f"Midterm grade: {required_midterm:.2f}<br>"
                     result += f"Final grade: {required_final:.2f}<br><br>"
 
+                    # Calculates the required Midterm and Final grades for Dean's Lister qualification (90)
                     remaining_for_midterm_final1 = 90 - prelim_contribution
                     required_midterm1 = remaining_for_midterm_final1 / max_midterm_final
                     required_final1 = required_midterm1
 
-                    # Condition where qualifying for Dean's Lister is impossible
+                    # Checks if qualifying for Dean's Lister is impossible based on Prelim grade
                     if prelim_grade < 60 or required_midterm1 > 100 or required_final1 > 100:
                         result += "Unfortunately, it's not possible for you to qualify for Dean's Lister, even with perfect scores. <br> Don't give up, there's always room to improve! <br>Use this as motivation to continue growing!"
+                    # Case where the student already qualifies for Dean's Lister
                     elif prelim_contribution + max_midterm_final * 100 >= 90:
                         result += "Congratulations! You have qualified for Dean's Lister.<br>"
                         result += f"Now, you only need to have a midterm grade of {required_midterm1:.2f} and a final grade of {required_final1:.2f}"
+                    # Builds the result message for Dean's Lister qualification
                     else:
                         result += "If you want to become a Dean's Lister, you need at least:<br>"
                         result += f"Midterm grade: {required_midterm1:.2f}<br>"
                         result += f"Final grade: {required_final1:.2f}"
 
+                # Displays the result on the webpage
                 result_element = Element('result')
                 result_element.element.innerHTML = result
                 result_element.element.style.display = "block"
 
+            # Catches and handles invalid input (non-numeric values or grades outside the allowed range)
             except ValueError as e:
                 result_element = Element('result')
                 result_element.element.innerHTML = f'<span style="color: red;">{str(e)}</span>'
                 result_element.element.style.display = "block"
 
-        # Setup function to initialize event handling for form submission
+        # This function sets up the event listener for the form submission
         def setup():
+            # Links the form's submit event to the 'calculate_grades' function
             Element('gradeForm').element.onsubmit = calculate_grades
 
-        # Calling setup to ensure the form works
+        # Calls the setup function to initialize the form's event handling
         setup()
     </py-script>
                 
