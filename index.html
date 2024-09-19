@@ -87,7 +87,7 @@
     </div>
 
     <py-script>
-def calculateGrades(event):
+async def calculateGrades(event):
     # Get the Prelim grade from the form
     prelim_grade_str = Element('prelim').element.value
 
@@ -129,6 +129,9 @@ def calculateGrades(event):
 
         # Display the result in the web interface
         Element('result').element.innerHTML = result_text
+
+        # Reset the form after calculation is complete
+        Element('prelim').element.value = ""
 
     except ValueError as e:
         # Handle invalid input errors
