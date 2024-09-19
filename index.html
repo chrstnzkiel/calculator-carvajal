@@ -83,7 +83,7 @@
             <input type="text" id="prelim" name="prelim_grade" required>
             <button type="button" id="calculateButton">Calculate</button>
         </form>
-        <div id="result"></div>
+        <div id="result" class="result" style="display: none"></div>
     </div>
 
     <py-script>
@@ -101,41 +101,47 @@ async def calculateGrades(event):
         prelim_contribution = 0.20 * prelim_grade
         max_midterm_final = 0.30 + 0.50
 
-        # Initialize result text
-        result_text = f"Prelim Grade: {prelim_grade:.2f}<br>"
+        result = ""
 
         # Check if it's possible to pass
         if prelim_contribution + max_midterm_final * 100 < 75:
-            result_text += "Sorry, but it is impossible for you to pass the course with your current Prelim grade."
+            result = "Sorry to say this, but it is impossible for you to pass the subject with your current Prelim grade."
         else:
             # Calculate required Midterm and Final grades to pass
             remaining_for_midterm_final = 75 - prelim_contribution
             required_midterm = remaining_for_midterm_final / max_midterm_final
             required_final = required_midterm
 
-            # Display passing requirements
-            result_text += f"To pass, you need at least {required_midterm:.2f} in Midterm and {required_final:.2f} in Finals.<br><br>"
+            result += f"To pass the subject with an overall grade of 75, you need at least:<br>"
+            result += f"Midterm grade: {required_midterm:.2f}<br>"
+            result += f"Final grade: {required_final:.2f}<br><br>"
 
             # Dean's Lister qualification (Grade > 90)
-            if prelim_contribution + max_midterm_final * 100 >= 90:
-                result_text += "Congratulations! You've qualified for Dean's Lister.<br>"
+            remaining_for_midterm_final1 = 90 - prelim_contribution
+            required_midterm1 = remaining_for_midterm_final1 / max_midterm_final
+            required_final1 = required_midterm1
+
+            if required_midterm1 > 100 or required_final1 > 100:
+                result += Unfortunately, it's not possible for you to qualify for Dean's Lister, even with perfect scores in both your midterms and finals. Don't give up, there's always room to improve! Use this as motivation to continue growing.
+            elif prelim_contribution + max_midterm_final * 100 >= 90:
+                result += "Congratulations! You have qualified for Dean's Lister.<br>"
+                result += f"Now, you only need to have a midterm grade of {required_midterm1:.2f} and a final grade of {required_final1:.2f}"
             else:
-                remaining_for_deans_lister = 90 - prelim_contribution
-                required_midterm_lister = remaining_for_deans_lister / max_midterm_final
-                required_final_lister = required_midterm_lister
+                result += "If you want to become a Dean's Lister, you need at least:<br>"
+                result += f"Midterm grade: {required_midterm1:.2f}<br>"
+                result += f"Final grade: {required_final1:.2f}"
 
-                # Display Dean's Lister requirements
-                result_text += f"If you want to become a Dean's Lister, you need at least {required_midterm_lister:.2f} in Midterm and {required_final_lister:.2f} in Finals.<br>"
-
-        # Display the result in the web interface
-        Element('result').element.innerHTML = result_text
+        result_element = Element('result')
+        result_element.element.innerHTML = result
+        result_element.element.style.display = "block"
 
         # Reset the form after calculation is complete
         Element('prelim').element.value = ""
 
     except ValueError as e:
-        # Handle invalid input errors
-        Element('result').element.innerHTML = f'<span style="color: red;">{str(e)}</span>'
+        result_element = Element('result')
+        result_element.element.innerHTML = f'<span style="color: red;">{str(e)}</span>'
+        result_element.element.style.display = "block"
 
 # Add event listener to the button
 Element('calculateButton').element.onclick = calculateGrades
