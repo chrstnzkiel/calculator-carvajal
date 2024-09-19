@@ -117,7 +117,7 @@ def calculate_grades(event):
             required_midterm1 = remaining_for_midterm_final1 / max_midterm_final
             required_final1 = required_midterm1
 
-            if required_midterm1 > 100 or required_final1 > 100:
+            if prelim_grade < 60 or required_midterm1 > 100 or required_final1 > 100:
                 result += "Unfortunately, it's not possible for you to qualify for Dean's Lister, even with perfect scores. <br> Don't give up, there's always room to improve! <br>Use this as motivation to continue growing!"
             elif prelim_contribution + max_midterm_final * 100 >= 90:
                 result += "Congratulations! You have qualified for Dean's Lister.<br>"
@@ -141,5 +141,6 @@ def setup():
 
 setup()
     </py-script>
+                #Credits to ChatGPT for helping me to accomplish this task. For more info you can visit https://www.chatgpt.com
 </body>
 </html>
