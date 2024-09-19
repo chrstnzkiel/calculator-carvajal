@@ -101,29 +101,32 @@ def calculateGrades(event):
         prelim_contribution = 0.20 * prelim_grade
         max_midterm_final = 0.30 + 0.50
 
+        # Initialize result text
+        result_text = f"Prelim Grade: {prelim_grade:.2f}<br>"
+
         # Check if it's possible to pass
         if prelim_contribution + max_midterm_final * 100 < 75:
-            result_text = "Sorry, but it is impossible for you to pass the course with your current Prelim grade."
+            result_text += "Sorry, but it is impossible for you to pass the course with your current Prelim grade."
         else:
             # Calculate required Midterm and Final grades to pass
             remaining_for_midterm_final = 75 - prelim_contribution
             required_midterm = remaining_for_midterm_final / max_midterm_final
             required_final = required_midterm
 
+            # Display passing requirements
+            result_text += f"To pass, you need at least {required_midterm:.2f} in Midterm and {required_final:.2f} in Finals.<br><br>"
+
             # Dean's Lister qualification (Grade > 90)
             if prelim_contribution + max_midterm_final * 100 >= 90:
-                result_text = "Congratulations! You've qualified for Dean's Lister."
+                result_text += "Congratulations! You've qualified for Dean's Lister.<br>"
             else:
                 remaining_for_deans_lister = 90 - prelim_contribution
                 required_midterm_lister = remaining_for_deans_lister / max_midterm_final
                 required_final_lister = required_midterm_lister
 
-                result_text = f"""
-                Prelim Grade: {prelim_grade:.2f}<br>
-                To pass, you need at least {required_midterm:.2f} in Midterm and {required_final:.2f} in Finals.<br><br>
-                If you want to become a Dean's Lister, you need at least {required_midterm_lister:.2f} in Midterm and {required_final_lister:.2f} in Finals.
-                """
-        
+                # Display Dean's Lister requirements
+                result_text += f"If you want to become a Dean's Lister, you need at least {required_midterm_lister:.2f} in Midterm and {required_final_lister:.2f} in Finals.<br>"
+
         # Display the result in the web interface
         Element('result').element.innerHTML = result_text
 
