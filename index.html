@@ -48,7 +48,7 @@
             color: #bbb; 
         }
 
-        button {
+        input[type="submit"] {
             background-color: gold; 
             color: black; 
             padding: 10px 15px;
@@ -57,8 +57,8 @@
             cursor: pointer;
         }
 
-        button:hover {
-            background-color: white; 
+        input[type="submit"]:hover {
+            background-color: black; 
             color: gold; 
         }
 
@@ -74,40 +74,37 @@
     <!-- Load PyScript -->
     <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
     <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <link rel="icon" href="images/calculator.png" type="image/png" sizes="96x96"/>
 </head>
 <body>
     <div class="container">
         <h1>Grade Calculator</h1>
         <form id="gradeForm">
-            <label for="prelim">Enter Prelim Grade (0-100):</label>
+            <label for="prelim">Enter Prelim Grade (1-100):</label>
             <input type="text" id="prelim" name="prelim_grade" required>
-            <button type="button" id="calculateButton">Calculate</button>
+            <input type="submit" value="Calculate" id="calculateButton">
         </form>
         <div id="result" class="result" style="display: none"></div>
     </div>
 
     <py-script>
-async def calculateGrades(event):
-    # Get the Prelim grade from the form
+def calculate_grades(event):
+    event.preventDefault()
     prelim_grade_str = Element('prelim').element.value
 
     try:
-        # Validate input as a numerical value
         prelim_grade = float(prelim_grade_str)
-        if prelim_grade < 0 or prelim_grade > 100:
-            raise ValueError("Grade must be between 0 and 100.")
+        if prelim_grade < 1 or prelim_grade > 100:
+            raise ValueError("Grade must be between 1 and 100.")
         
-        # Calculate Prelim contribution (20%)
         prelim_contribution = 0.20 * prelim_grade
         max_midterm_final = 0.30 + 0.50
 
         result = ""
 
-        # Check if it's possible to pass
         if prelim_contribution + max_midterm_final * 100 < 75:
             result = "Sorry to say this, but it is impossible for you to pass the subject with your current Prelim grade."
         else:
-            # Calculate required Midterm and Final grades to pass
             remaining_for_midterm_final = 75 - prelim_contribution
             required_midterm = remaining_for_midterm_final / max_midterm_final
             required_final = required_midterm
@@ -116,13 +113,12 @@ async def calculateGrades(event):
             result += f"Midterm grade: {required_midterm:.2f}<br>"
             result += f"Final grade: {required_final:.2f}<br><br>"
 
-            # Dean's Lister qualification (Grade > 90)
             remaining_for_midterm_final1 = 90 - prelim_contribution
             required_midterm1 = remaining_for_midterm_final1 / max_midterm_final
             required_final1 = required_midterm1
 
             if required_midterm1 > 100 or required_final1 > 100:
-                result += Unfortunately, it's not possible for you to qualify for Dean's Lister, even with perfect scores in both your midterms and finals. Don't give up, there's always room to improve! Use this as motivation to continue growing.
+                result += "Unfortunately, it's not possible for you to qualify for Dean's Lister, even with perfect scores. <br> Don't give up, there's always room to improve! <br>Use this as motivation to continue growing!"
             elif prelim_contribution + max_midterm_final * 100 >= 90:
                 result += "Congratulations! You have qualified for Dean's Lister.<br>"
                 result += f"Now, you only need to have a midterm grade of {required_midterm1:.2f} and a final grade of {required_final1:.2f}"
@@ -135,16 +131,15 @@ async def calculateGrades(event):
         result_element.element.innerHTML = result
         result_element.element.style.display = "block"
 
-        # Reset the form after calculation is complete
-        Element('prelim').element.value = ""
-
     except ValueError as e:
         result_element = Element('result')
         result_element.element.innerHTML = f'<span style="color: red;">{str(e)}</span>'
         result_element.element.style.display = "block"
 
-# Add event listener to the button
-Element('calculateButton').element.onclick = calculateGrades
+def setup():
+    Element('gradeForm').element.onsubmit = calculate_grades
+
+setup()
     </py-script>
 </body>
 </html>
